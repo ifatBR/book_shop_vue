@@ -13,7 +13,7 @@ export const booksService = {
     getGoogleBooks,
     addGoogleBook,
     removeReview,
-    getNeighborBookId
+    getNeighborBookId,
 };
 
 function getBooks() {
@@ -36,65 +36,77 @@ function getById(id) {
     return storageService.get(BOOKS_KEY, id);
 }
 
-function getNeighborBookId(currBookId, diff){
-    return getBooks()
-    .then(books => {
-        const idx = books.findIndex(({id}) => id===currBookId);
-        if(diff>0 && idx>=books.length-1) return books[0];
-        if(diff<0 && idx<=0) return books[books.length-1];
-        return books[idx+diff]
-    })
+function getNeighborBookId(currBookId, diff) {
+    return getBooks().then((books) => {
+        const idx = books.findIndex(({ id }) => id === currBookId);
+        if (diff > 0 && idx >= books.length - 1) return books[0];
+        if (diff < 0 && idx <= 0) return books[books.length - 1];
+        return books[idx + diff];
+    });
 }
 
-function saveReview(bookId, bookReview){
-    return getById(bookId)
-    .then(book => {
+function saveReview(bookId, bookReview) {
+    return getById(bookId).then((book) => {
         book.reviews.push(bookReview);
-        return storageService.put(BOOKS_KEY, book)
-    })  
+        return storageService.put(BOOKS_KEY, book);
+    });
 }
 
-function getEmptyReview(){
+function getEmptyReview() {
     return {
-        userName:'',
-        rate:1,
-        readAt:null,
-        txt:'',
-        id:utilService.makeId()
-    }
+        userName: '',
+        rate: 1,
+        readAt: null,
+        txt: '',
+        id: utilService.makeId(),
+    };
 }
 
-function removeReview(bookId, review){
-    const reviewId = review.id
-    return getById(bookId)
-    .then(book => { 
-        const idx = book.reviews.findIndex(({id}) => id===reviewId)
-        book.reviews.splice(idx,1)
-        return storageService.put(BOOKS_KEY, book); 
-    })
+function removeReview(bookId, review) {
+    const reviewId = review.id;
+    return getById(bookId).then((book) => {
+        const idx = book.reviews.findIndex(({ id }) => id === reviewId);
+        book.reviews.splice(idx, 1);
+        return storageService.put(BOOKS_KEY, book);
+    });
 }
 
-function getGoogleBooks() {
-    return storageService.query(GOOGLE_BOOKS_KEY)
-    .then(googleBooks => {
-        if (googleBooks) return googleBooks;  
-        return _createGoogleBooks()
-        .then(googleBooks => utilService.saveToStorage(GOOGLE_BOOKS_KEY, googleBooks))
-        .then(books => books)
-               
-    })
-    .then(books => books)
+function getGoogleBooks(search) {
+    return storageService.query(GOOGLE_BOOKS_KEY).then((googleBooks) => {
+        if (!googleBooks || googleBooks.length === 0) {
+            googleBooks = {};
+        }
+        if (!googleBooks[search]) {
+            return _searchGoogleBooks(search)
+            .then((searchResult) => {
+                googleBooks[search] = searchResult;
+                utilService.saveToStorage(GOOGLE_BOOKS_KEY, googleBooks);
+                return searchResult;
+            });
+        }
+        else {
+            return googleBooks[search]
+        };
+    });
 }
 
 function addGoogleBook(googleBook) {
-    const newBook = _createNewBookGoogle(googleBook);
-    storageService.post(BOOKS_KEY, newBook)
+    getBooks()
+    .then(books => {
+        const book = books.find(book => book.title === googleBook.volumeInfo.title)
+        if(book) return;
+        const newBook = _createNewBookGoogle(googleBook);
+        storageService.post(BOOKS_KEY, newBook);
+    });
 }
 
-function  _createNewBookGoogle(book){
-    const {id,volumeInfo:{authors, categories, description, imageLinks,language,pageCount,subtitle,title,publishedDate}} = book;
+function _createNewBookGoogle(book) {
+    const {
+        id,
+        volumeInfo: { authors, categories, description, imageLinks, language, pageCount, subtitle, title, publishedDate },
+    } = book;
     return {
-        thumbnail:imageLinks.thumbnail,
+        thumbnail: imageLinks.thumbnail,
         id,
         title,
         authors,
@@ -103,21 +115,23 @@ function  _createNewBookGoogle(book){
         language,
         pageCount,
         subtitle,
-        publishedDate,////
+        publishedDate, ////
         listPrice: {
-            amount: utilService.getRandomIntImp(20,200),///
-            currencyCode: 'USD',///
-            isOnSale: utilService.getRandomTrueFalse(),///
+            amount: utilService.getRandomIntImp(20, 200), ///
+            currencyCode: 'USD', ///
+            isOnSale: utilService.getRandomTrueFalse(), ///
         },
-    }
+    };
 }
 
-function _createGoogleBooks() {
+function _searchGoogleBooks(search) {
+    console.log(search);
+
     return axios
-        .get('https://www.googleapis.com/books/v1/volumes?printType=books&q=effective%20javascript')
-        .then(books => books.data)
+        .get(`https://www.googleapis.com/books/v1/volumes?printType=books&q=${search}`)
+        .then((books) => books.data)
         .then((googleBooks) => googleBooks)
-        .catch(err => 'error:' + err);
+        .catch((err) => 'error:' + err);
 }
 
 function _createBooks() {
