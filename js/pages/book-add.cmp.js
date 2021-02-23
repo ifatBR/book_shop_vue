@@ -9,10 +9,10 @@ export default{
             </datalist>
 
             <label for="">Search book</label>  
-            <input type="search" list="google-books"/>
+            <input type="search" v-model="search" list="google-books"/>
 
             <ul class="google-books-container">
-                <google-books :books="googleBooks"/>
+                <google-books :search="search" :books="googleBooks"/>
             </ul> 
         </div>
     </section>
@@ -20,10 +20,12 @@ export default{
     data(){
         return{
             googleBooks:null,
+            search:''
         }
     },
     created(){
         booksService.getGoogleBooks().then(books => this.googleBooks = books.items)
+        ;
         
     },
     components:{

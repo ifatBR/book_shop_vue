@@ -1,4 +1,5 @@
 import { booksService } from '../services/books.service.js';
+import { eventBus } from '../services/event-bus.service.js';
 
 export default{
     template:`
@@ -18,7 +19,7 @@ export default{
                                 <h3>{{review.rate}}</h3>
                                 <button type="button" @click="changeRating(-1)">-</button>
                             </div>
-                            <!-- <input type="number" placeholder="1"/> -->
+
                         </div>
                         <div>
                             <label for="">Read at</label>
@@ -56,7 +57,22 @@ export default{
         addReview(){
             if(!this.review.txt) return;
             booksService.saveReview(this.$route.params.bookId, this.review)
-            this.backToBook();
+            .then(() => {
+                const msg = {
+                    isSuccess:true,
+                    txt:'Review has been added successfuly'
+                }
+                eventBus.$emit('show-msg',msg)
+        })
+            .catch(() => {
+                const msg = {
+                    isSuccess:true,
+                    txt:'Review adding failed'
+                }
+                eventBus.$emit('show-msg',msg)
+        })
+            .then(() => this.backToBook())
+            
         },
         
         backToBook(){

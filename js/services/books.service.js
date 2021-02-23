@@ -12,6 +12,8 @@ export const booksService = {
     getEmptyReview,
     getGoogleBooks,
     addGoogleBook,
+    removeReview,
+    getNeighborBookId
 };
 
 function getBooks() {
@@ -34,22 +36,43 @@ function getById(id) {
     return storageService.get(BOOKS_KEY, id);
 }
 
-function saveReview(id, bookReview) {
-    getById(id).then((book) => {
+function getNeighborBookId(currBookId, diff){
+    return getBooks()
+    .then(books => {
+        const idx = books.findIndex(({id}) => id===currBookId);
+        if(diff>0 && idx>=books.length-1) return books[0];
+        if(diff<0 && idx<=0) return books[books.length-1];
+        return books[idx+diff]
+    })
+}
+
+function saveReview(bookId, bookReview){
+    return getById(bookId)
+    .then(book => {
         book.reviews.push(bookReview);
-        storageService.put(BOOKS_KEY, book);
-    });
+        return storageService.put(BOOKS_KEY, book)
+    })  
 }
 
-function getEmptyReview() {
+function getEmptyReview(){
     return {
-        userName: '',
-        rate: 1,
-        readAt: null,
-        txt: '',
-    };
+        userName:'',
+        rate:1,
+        readAt:null,
+        txt:'',
+        id:utilService.makeId()
+    }
 }
 
+function removeReview(bookId, review){
+    const reviewId = review.id
+    return getById(bookId)
+    .then(book => { 
+        const idx = book.reviews.findIndex(({id}) => id===reviewId)
+        book.reviews.splice(idx,1)
+        return storageService.put(BOOKS_KEY, book); 
+    })
+}
 
 function getGoogleBooks() {
     return storageService.query(GOOGLE_BOOKS_KEY)
@@ -64,7 +87,6 @@ function getGoogleBooks() {
 }
 
 function addGoogleBook(googleBook) {
-    console.log('googleBook:', googleBook)
     const newBook = _createNewBookGoogle(googleBook);
     storageService.post(BOOKS_KEY, newBook)
 }

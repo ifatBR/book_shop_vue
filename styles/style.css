@@ -225,6 +225,16 @@ input {
     position:relative;
 }
 
+.book-details .paging-container{
+    position: absolute;
+    top:120px;
+    right:20px;
+}
+
+.book-details .paging-container .prev{
+    margin-inline-end: 20px;;
+}
+
 .book-details .info {
     position: relative;
     width: 40%;
@@ -411,6 +421,25 @@ input {
     margin-inline-end: 10px;
 }
 
+
+/* USER - MSG */
+.user-msg {
+    position: absolute;
+    padding: 10px;
+    top:200px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index:1;
+    border:1px solid grey;
+}
+
+.success{
+    background-color: rgb(30, 207, 30);
+}
+
+.error{
+    background-color: red;
+}
 /* HELPERS */
 .flex {
     display: flex;

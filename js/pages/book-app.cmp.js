@@ -6,8 +6,8 @@ import bookAdd from './book-add.cmp.js'
 export default {
     template: `
     <main class="book-container">
-            <book-filter @filtered="setFilter"/>
             <router-link active-class="active-link" to="/book/addBooks" exact>Add Books</router-link>
+            <book-filter @filtered="setFilter"/>
             <book-list :books="booksToShow" @selected="selectBook"/>
     </main>
     `,

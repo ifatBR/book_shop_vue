@@ -5,6 +5,10 @@ import bookReviews from '../cmps/book-reviews.cmp.js';
 export default {
     template: `
     <div v-if="book" class="book-details main-container flex">
+        <div class="paging-container">
+            <router-link class="prev paging" :to="'/book/'+prevBookId">Prev</router-link>
+            <router-link class="next paging" :to="'/book/'+nextBookId">Next</router-link>
+        </div>
         <img :src="book.thumbnail"/>
         <router-link class="back" to="/book">Back</router-link>
         <div class="info">
@@ -30,8 +34,9 @@ export default {
             </div>            
         </div>
         <div class="reviews">
+            <h2>Reviews</h2>
             <router-link class="lnk-review" :to="book.id+'/'+book.title+'/review'">Add review</router-link>
-            <book-reviews :reviews="book.reviews"/>
+            <book-reviews @reload-book="updateBook" :bookId="book.id" :reviews="book.reviews"/>
         </div>
     </div>
     `,
@@ -39,16 +44,45 @@ export default {
         return {
             isShortDesc: true,
             book: null,
+            prevBookId:null,
+            nextBookId:null
         };
     },
     methods: {
         toggleDescription() {
             this.isShortDesc = !this.isShortDesc;
         },
+        loadBook(){
+            const id = this.$route.params.bookId;
+            return booksService.getById(id)
+            .then((book) => this.book = book)
+            .then(() => this.setNeighboreBooksIds());
+        },
+        updateBook(){
+            this.loadBook();
+        },
+        setNeighboreBooksIds(){
+            const prms = [];
+            prms.push(booksService.getNeighborBookId(this.book.id, -1))
+            prms.push(booksService.getNeighborBookId(this.book.id, 1))
+            Promise.all(prms)
+            .then(pagesIds =>{ 
+                this.prevBookId = pagesIds[0].id
+                this.nextBookId = pagesIds[1].id
+            })    
+        }
     },
     created() {
         const id = this.$route.params.bookId;
-        booksService.getById(id).then((book) => this.book = book)
+        booksService.getById(id).then((book) => {
+            this.book = book;
+        })
+        .then(() => this.loadBook());
+    },
+    watch:{
+        '$route.params.bookId'(){
+            this.loadBook()
+        }
     },
     computed: {
         formattedAuthor() {
