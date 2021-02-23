@@ -64,7 +64,7 @@ input {
 
 .main-header {
     background-color: rgba(0, 0, 0, 0.7);
-    padding: 5px 50px 5px 5px;
+    padding: 0px 50px 0px 5px;
     margin-bottom: 20px;
     position: fixed;
     top: 0;
@@ -150,11 +150,17 @@ input {
 }
 
 .filter-container {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 .price-filter-container > *:not(:last-child) {
     margin-inline-end: 20px;
+}
+
+.book-add-container{
+    margin:auto;
+    text-align: center;
+    margin-bottom: 30px;
 }
 
 .book-list {

@@ -2,52 +2,91 @@ import { storageService } from './async-storage-service.js';
 import { utilService } from './util-service.js';
 
 const BOOKS_KEY = 'books';
+const GOOGLE_BOOKS_KEY = 'googleBooks';
 // const gBooks;
 
 export const booksService = {
-    query,
+    query: getBooks,
     getById,
     saveReview,
     getEmptyReview,
+    getGoogleBooks,
+    addGoogleBook,
 };
 
-function query() {
-    return storageService.query(BOOKS_KEY)
-    .then(books => {
-        if (!books.length) {
-            books = _createBooks();
-        }
-        books.forEach(book => (book.reviews = []));
-        return books;
-    })
-    .then(books =>{
-        console.log('books:', books)
-        utilService.saveToStorage(BOOKS_KEY, books)
-        return books;
-});
+function getBooks() {
+    return storageService
+        .query(BOOKS_KEY)
+        .then((books) => {
+            if (!books.length) {
+                books = _createBooks();
+            }
+            books.forEach((book) => (book.reviews = []));
+            return books;
+        })
+        .then((books) => {
+            utilService.saveToStorage(BOOKS_KEY, books);
+            return books;
+        });
 }
 
-function getById(id){
-    return storageService.get(BOOKS_KEY,id);
+function getById(id) {
+    return storageService.get(BOOKS_KEY, id);
 }
 
-function saveReview(id, bookReview){
-    getById(id)
-    .then(book => {
+function saveReview(id, bookReview) {
+    getById(id).then((book) => {
         book.reviews.push(bookReview);
-        storageService.put(BOOKS_KEY, book); 
-    })
+        storageService.put(BOOKS_KEY, book);
+    });
 }
 
-function getEmptyReview(){
+function getEmptyReview() {
     return {
-        userName:'',
-        rate:1,
-        readAt:null,
-        txt:''
-    }
+        userName: '',
+        rate: 1,
+        readAt: null,
+        txt: '',
+    };
 }
 
+// return storageService
+// .query(BOOKS_KEY)
+// .then((books) => {
+//     if (!books.length) {
+//         books = _createBooks();
+//     }
+//     books.forEach((book) => (book.reviews = []));
+//     return books;
+// })
+// .then((books) => {
+//     utilService.saveToStorage(BOOKS_KEY, books);
+//     return books;
+// });
+
+function getGoogleBooks() {
+    return storageService.query(GOOGLE_BOOKS_KEY)
+    .then(googleBooks => {
+        if (googleBooks) return googleBooks;  
+        return _createGoogleBooks()
+        .then(googleBooks => utilService.saveToStorage(GOOGLE_BOOKS_KEY, googleBooks))
+        .then(books => books)
+               
+    })
+    .then(books => books)
+}
+
+function addGoogleBook(googleBook) {
+    //TODO
+}
+
+function _createGoogleBooks() {
+    return axios
+        .get('https://www.googleapis.com/books/v1/volumes?printType=books&q=effective%20javascript')
+        .then(books => books.data)
+        .then((googleBooks) => googleBooks)
+        .catch(err => 'error:' + err);
+}
 
 function _createBooks() {
     const books = [
