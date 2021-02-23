@@ -50,19 +50,6 @@ function getEmptyReview() {
     };
 }
 
-// return storageService
-// .query(BOOKS_KEY)
-// .then((books) => {
-//     if (!books.length) {
-//         books = _createBooks();
-//     }
-//     books.forEach((book) => (book.reviews = []));
-//     return books;
-// })
-// .then((books) => {
-//     utilService.saveToStorage(BOOKS_KEY, books);
-//     return books;
-// });
 
 function getGoogleBooks() {
     return storageService.query(GOOGLE_BOOKS_KEY)
@@ -77,7 +64,30 @@ function getGoogleBooks() {
 }
 
 function addGoogleBook(googleBook) {
-    //TODO
+    console.log('googleBook:', googleBook)
+    const newBook = _createNewBookGoogle(googleBook);
+    storageService.post(BOOKS_KEY, newBook)
+}
+
+function  _createNewBookGoogle(book){
+    const {id,volumeInfo:{authors, categories, description, imageLinks,language,pageCount,subtitle,title,publishedDate}} = book;
+    return {
+        thumbnail:imageLinks.thumbnail,
+        id,
+        title,
+        authors,
+        categories,
+        description,
+        language,
+        pageCount,
+        subtitle,
+        publishedDate,////
+        listPrice: {
+            amount: utilService.getRandomIntImp(20,200),///
+            currencyCode: 'USD',///
+            isOnSale: utilService.getRandomTrueFalse(),///
+        },
+    }
 }
 
 function _createGoogleBooks() {

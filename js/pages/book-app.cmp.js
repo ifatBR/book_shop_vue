@@ -1,13 +1,13 @@
 import { booksService } from '../services/books.service.js';
 import bookList from '../cmps/book-list.cmp.js';
 import bookFilter from '../cmps/book-filter.cmp.js';
-import bookAdd from '../cmps/book-add.cmp.js'
+import bookAdd from './book-add.cmp.js'
 
 export default {
     template: `
     <main class="book-container">
             <book-filter @filtered="setFilter"/>
-            <book-add/>
+            <router-link active-class="active-link" to="/book/addBooks" exact>Add Books</router-link>
             <book-list :books="booksToShow" @selected="selectBook"/>
     </main>
     `,

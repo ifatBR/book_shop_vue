@@ -3,6 +3,7 @@ import homePage from './pages/home-page.cmp.js';
 import bookDetails from './pages/book-details.cmp.js';
 import about from './pages/about.cmp.js';
 import reviewAdd from './pages/review-add.cmp.js';
+import bookAdd from './pages/book-add.cmp.js'
 const routes = [
     {
         path: '/',
@@ -15,6 +16,10 @@ const routes = [
     {
         path: '/about',
         component: about,
+    },
+    {
+        path: '/book/addBooks',
+        component: bookAdd
     },
     {
         path: '/book/:bookId',

@@ -1,7 +1,9 @@
 export const utilService = {
     saveToStorage,
     loadFromStorage,
-    makeId
+    makeId,
+    getRandomTrueFalse,
+    getRandomIntImp
 }
 
 function saveToStorage(key, value) {
@@ -21,3 +23,15 @@ function makeId(length = 5) {
     }
     return txt;
 }
+
+function getRandomTrueFalse(){
+    return (Math.random() >0.5);
+}
+
+function getRandomIntImp(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    var diff = max - min +1;
+    var randNum = Math.floor(Math.random() * diff) + min;
+    return randNum;
+  }

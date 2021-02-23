@@ -390,6 +390,27 @@ input {
 
 }
 
+.book-add{
+    margin-top: 150px;
+}
+
+.google-books-container{
+    width: 300px;
+    margin:auto;
+}
+
+.google-books-filtered{
+    text-align: left;
+}
+
+.google-books-filtered button{
+    font-size: 1.15em;
+    background-color: transparent;
+    border:1px solid black;
+    outline: none;
+    margin-inline-end: 10px;
+}
+
 /* HELPERS */
 .flex {
     display: flex;
